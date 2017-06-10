@@ -9,6 +9,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::fs::{File, Metadata};
 use std::io::Read;
 use std::path::Path;
+use std::process;
 use walkdir::WalkDir;
 
 const NAME: &'static str = "TrustAntivirus";
@@ -27,8 +28,15 @@ fn main() {
             .index(1))
         .get_matches();
 
-    let dir: &str = matches.value_of("DIRECTORY").unwrap_or("/Users/adam.childs/Desktop");
+    let dir: &str = matches.value_of("DIRECTORY").unwrap_or("/Users/adchilds/Desktop");
     println!("Dir: {}", dir);
+
+    let path: &Path = Path::new(dir);
+    if !path.exists() {
+        println!("Directory or file does not exist.");
+
+        process::exit(1);
+    }
 
     let mut total_size: f64 = 0.0;
     for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {

@@ -3,5 +3,5 @@
 /target/
 
 # Files
-Cargo.lock # Remove when creating an executable
-**/*.rs.bk # rustfmt backup files
+Cargo.lock
+**/*.rs.bk
