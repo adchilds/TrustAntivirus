@@ -1,9 +1,10 @@
 [package]
-name = "t_rust"
-version = "0.1.0"
+name = "TrustAntivirus"
+version = "1.0.0"
 authors = ["Adam Childs <adamdchilds@gmail.com>"]
 
 [dependencies]
-clap = "2.24.1"
+clap = "2.24.2"
 md5 = "0.3.4"
+rayon = "0.7.1"
 walkdir = "1.0.7"
