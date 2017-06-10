@@ -11,11 +11,16 @@ use std::io::Read;
 use std::path::Path;
 use walkdir::WalkDir;
 
+const NAME: &'static str = "TrustAntivirus";
+const VERSION: &'static str = "1.0";
+const AUTHOR: &'static str = "Adam Childs <adamdchilds@gmail.com>";
+const ABOUT: &'static str = "";
+
 fn main() {
-    let matches = App::new("T_Rust")
-        .version("1.0")
-        .author("Adam Childs <adam.childs@gmail.com>")
-        .about("")
+    let matches = App::new(NAME)
+        .version(VERSION)
+        .author(AUTHOR)
+        .about(ABOUT)
         .arg(Arg::with_name("DIRECTORY")
             .help("Sets the input directory to use")
             .required(true)
