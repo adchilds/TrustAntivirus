@@ -46,14 +46,14 @@ impl<'a> Engine<'a> {
             process::exit(1);
         }
 
-        let mut result: Option<ScanResult> = None;
         if self.path.is_dir() {
-            result = Engine::scan_dir(self.path);
+            let result = Engine::scan_dir(self.path).unwrap();
+            println!("Total size: {}", SystemFile::human_readable_size(result.total_scan_size));
         } else {
-            result = Engine::scan_file(self.path);
+            let result = Engine::scan_file(self.path).unwrap();
+            println!("Total size: {}", SystemFile::human_readable_size(result.total_scan_size));
         }
 
-        println!("Total size: {}", SystemFile::human_readable_size(result.unwrap().total_scan_size));
         println!("Finished in {} seconds", SystemTime::now().duration_since(cur_time).unwrap().as_secs());
     }
 
@@ -112,6 +112,7 @@ pub struct ScanResult {
 
 }
 
+#[allow(dead_code)]
 pub struct FileType {
 
     extension: String,

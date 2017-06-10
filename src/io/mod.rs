@@ -12,8 +12,7 @@ pub struct SystemFile {
     name: String,
     path: String,
     size: String,
-    md5: Digest,
-    is_dir: bool
+    md5: Digest
 }
 
 impl SystemFile {
@@ -35,8 +34,7 @@ impl SystemFile {
             name: String::from(Path::new(&path).file_name().unwrap().to_str().unwrap()),
             path: path,
             size: SystemFile::human_readable_size(metadata.len() as f64),
-            md5: md5::compute(buffer),
-            is_dir: metadata.is_dir()
+            md5: md5::compute(buffer)
         }
     }
 

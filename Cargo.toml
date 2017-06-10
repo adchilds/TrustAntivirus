@@ -1,5 +1,5 @@
 [package]
-name = "TrustAntivirus"
+name = "trust_antivirus"
 version = "1.0.0"
 authors = ["Adam Childs <adamdchilds@gmail.com>"]
 

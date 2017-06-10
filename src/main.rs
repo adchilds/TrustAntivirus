@@ -8,8 +8,6 @@ pub mod io;
 
 use clap::{Arg, App};
 use core::engine::Engine;
-use rayon::prelude::*;
-use std::path::Path;
 
 const NAME: &'static str = "TrustAntivirus";
 const VERSION: &'static str = "1.0.0";
