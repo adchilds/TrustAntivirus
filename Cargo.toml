@@ -1,0 +1,9 @@
+[package]
+name = "t_rust"
+version = "0.1.0"
+authors = ["Adam Childs <adamdchilds@gmail.com>"]
+
+[dependencies]
+clap = "2.24.1"
+md5 = "0.3.4"
+walkdir = "1.0.7"
