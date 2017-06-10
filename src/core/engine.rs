@@ -46,14 +46,12 @@ impl<'a> Engine<'a> {
             process::exit(1);
         }
 
-        if self.path.is_dir() {
-            let result = Engine::scan_dir(self.path).unwrap();
-            println!("Total size: {}", SystemFile::human_readable_size(result.total_scan_size));
-        } else {
-            let result = Engine::scan_file(self.path).unwrap();
-            println!("Total size: {}", SystemFile::human_readable_size(result.total_scan_size));
-        }
+        let result: ScanResult = match self.path.is_dir() {
+            true => Engine::scan_dir(self.path).unwrap(),
+            false => Engine::scan_file(self.path).unwrap()
+        };
 
+        println!("Total size: {}", SystemFile::human_readable_size(result.total_scan_size));
         println!("Finished in {} seconds", SystemTime::now().duration_since(cur_time).unwrap().as_secs());
     }
 
