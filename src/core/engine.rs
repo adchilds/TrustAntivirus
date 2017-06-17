@@ -1,9 +1,12 @@
+use core::scanner::ScanResult;
 use io::SystemFile;
+use rayon::prelude::*;
 use std::fs::{File, Metadata};
 use std::path::Path;
 use std::process;
+use std::result::Result;
 use std::time::SystemTime;
-use walkdir::{Iter, WalkDir};
+use walkdir::{DirEntry, Error, Iter, WalkDir};
 
 ///
 ///
@@ -61,25 +64,27 @@ impl<'a> Engine<'a> {
     pub(self) fn scan_dir(dir: &Path) -> Option<ScanResult> {
         println!("Scanning dir: {}", dir.to_str().unwrap());
 
-        let mut total_size: f64 = 0.0;
         let dir_iter: Iter = WalkDir::new(dir).into_iter();
+        let dir_entries: Vec<Result<DirEntry, Error>> = dir_iter.collect();
+        let dir_iter_par = dir_entries.into_par_iter();
 
-        for entry in dir_iter.filter_map(|e| e.ok()) {
-            let file: File = File::open(entry.path()).unwrap();
+        let total_size: f64 = dir_iter_par.map(|result| {
+            let dir_entry: DirEntry = result.unwrap();
+            let path: &Path = dir_entry.path();
+
+            let file: File = File::open(path).unwrap();
             let metadata: Metadata = file.metadata().unwrap();
-            let file_path: String = String::from(entry.path().to_str().unwrap());
+            let file_path: String = String::from(path.to_str().unwrap());
             let sys_file: SystemFile = SystemFile::from(file_path);
 
-            total_size += metadata.len() as f64;
-
             println!("{}", sys_file);
-        }
 
-        Some(
-            ScanResult {
-                total_scan_size: total_size
-            }
-        )
+            metadata.len() as f64
+        }).sum();
+
+        Some(ScanResult {
+            total_scan_size: total_size
+        })
     }
 
     ///
@@ -95,18 +100,10 @@ impl<'a> Engine<'a> {
 
         println!("{}", sys_file);
 
-        Some(
-            ScanResult {
-                total_scan_size: metadata.len() as f64
-            }
-        )
+        Some(ScanResult {
+            total_scan_size: metadata.len() as f64
+        })
     }
-
-}
-
-pub struct ScanResult {
-
-    pub total_scan_size: f64
 
 }
 
