@@ -68,18 +68,31 @@ impl<'a> Engine<'a> {
         let dir_entries: Vec<Result<DirEntry, Error>> = dir_iter.collect();
         let dir_iter_par = dir_entries.into_par_iter();
 
+        // Scan in parallel using Rayon
         let total_size: f64 = dir_iter_par.map(|result| {
             let dir_entry: DirEntry = result.unwrap();
             let path: &Path = dir_entry.path();
 
-            let file: File = File::open(path).unwrap();
-            let metadata: Metadata = file.metadata().unwrap();
-            let file_path: String = String::from(path.to_str().unwrap());
-            let sys_file: SystemFile = SystemFile::from(file_path);
+            // Don't scan directories
+            if path.is_dir() {
+                return 0.0;
+            }
 
-            println!("{}", sys_file);
+            let mut file_size: f64 = 0.0;
+            match File::open(path) {
+                Err(_) => println!("Unable to open file: {}", path.to_str().unwrap()),
+                Ok(file) => {
+                    let metadata: Metadata = file.metadata().unwrap();
+                    let file_path: String = String::from(path.to_str().unwrap());
+                    let sys_file: SystemFile = SystemFile::from(file_path);
 
-            metadata.len() as f64
+                    println!("{}", sys_file);
+
+                    file_size = metadata.len() as f64;
+                }
+            };
+
+            file_size
         }).sum();
 
         Some(ScanResult {
