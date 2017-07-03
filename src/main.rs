@@ -11,7 +11,9 @@ pub mod core;
 pub mod io;
 
 use clap::{Arg, App};
+use core::config::Config;
 use core::engine::Engine;
+use std::process;
 
 const NAME: &'static str = "TrustAntivirus";
 const VERSION: &'static str = "1.0.0";
@@ -31,6 +33,15 @@ fn main() {
 
     let dir: &str = matches.value_of("DIRECTORY").unwrap_or("/Users/adchilds/Desktop");
 
+    // Setup/verify configuration
+    let config: Config = Config::open();
+    if let Err(err) = config.verify_integrity() {
+        println!("Encountered integrity issue with configuration file. err[{}]", err);
+
+        process::exit(1);
+    }
+
+    // Run the scan
     let engine: Engine = Engine::from(dir);
     engine.do_scan();
 }

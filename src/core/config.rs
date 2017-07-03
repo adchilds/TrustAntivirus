@@ -1,7 +1,10 @@
 use std::env;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{MAIN_SEPARATOR, Path, PathBuf};
 use std::process;
+use std::result::Result;
+
+const PROGRAM_HOME: &'static str = ".trustantivirus";
 
 ///
 /// Represents local configuration for Trust Antivirus. Configuration is stored in JSON format in a
@@ -38,18 +41,55 @@ impl Config {
     /// the configuration file cannot be found, a new one is created with default settings.
     ///
     pub fn open() -> Config {
-        let user_home: PathBuf = get_user_home();
+        let config_home: String = Config::get_config_home();
+        let config_home_path: &Path = Path::new(config_home.as_str());
 
         // Create the TrustAntivirus home/config directory if it doesn't exist
-        if !user_home.exists() {
-            if let Err(err) = fs::create_dir_all(user_home) {
+        if !config_home_path.exists() {
+            if let Err(err) = fs::create_dir_all(config_home_path) {
                 println!("Unexpected error while creating TrustAntivirus configuration directories. err=[{}]", err);
 
                 process::exit(1);
             }
+
+            println!("Created TrustAntivirus home directory [{}]", config_home_path.to_str().unwrap());
         }
 
+        // TODO: Read or create config
         Config::new()
+    }
+
+    ///
+    /// Determines and returns the configuration home directory for TrustAntivirus. This directory
+    /// is dependent on two factors:
+    /// * The current user's home directory
+    /// * The Operating System of the host machine
+    ///
+    pub fn get_config_home() -> String {
+        let user_home: PathBuf = get_user_home();
+        let mut program_home: String = String::from(user_home.to_str().unwrap());
+        program_home.push(MAIN_SEPARATOR);
+        program_home.push_str(PROGRAM_HOME);
+
+        program_home
+    }
+
+    ///
+    /// Verifies the integrity of TrustAntivirus' configuration file. If there are any issues with
+    /// verifying the integrity, TrustAntivirus this function will return an Err along with a
+    /// message that explains the encountered issue.
+    ///
+    pub fn verify_integrity(&self) -> Result<&'static str, &'static str> {
+        let config_home: String = Config::get_config_home();
+        let config_home_path: &Path = Path::new(config_home.as_str());
+
+        // Make sure the configuration directory exists
+        if !config_home_path.exists() {
+            return Err::<&'static str, &'static str>("TrustAntivirus configuration location does not exist.");
+        }
+
+        // TODO: Implement integrity checking of config file (file exists, formatted correctly, etc.)
+        Ok("Success.")
     }
 
 }
