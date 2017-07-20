@@ -2,7 +2,6 @@ extern crate clap;
 extern crate md5;
 extern crate rayon;
 extern crate serde;
-extern crate serde_json;
 extern crate walkdir;
 
 #[macro_use] extern crate serde_derive;
