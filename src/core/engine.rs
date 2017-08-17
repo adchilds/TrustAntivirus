@@ -113,6 +113,9 @@ impl<'a> Engine<'a> {
 
         println!("{}", sys_file);
 
+        // Determine which Scanner to use
+
+
         Some(ScanResult {
             total_scan_size: metadata.len() as f64
         })
