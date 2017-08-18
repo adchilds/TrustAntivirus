@@ -11,12 +11,12 @@ const PROGRAM_HOME: &'static str = ".trustantivirus";
 /// configuration file that's stored in the current user's home directory. This directory is hidden
 /// by default but can be accessed by showing hidden files on the Operating System of choice.
 ///
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
 
     parallel: bool,
     hash_algorithm: HashAlgorithm,
-    db_path: String
+    program_version: &'static str
 
 }
 
@@ -31,7 +31,7 @@ impl Config {
         Config {
             parallel: true,
             hash_algorithm: HashAlgorithm::MD5,
-            db_path: String::from("")
+            program_version: "1.0.0"
         }
     }
 
@@ -101,7 +101,7 @@ impl Config {
 /// the default algorithm, manually update the configuration file located in the application's
 /// configuration directory.
 ///
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 enum HashAlgorithm {
 
     MD5,
