@@ -1,6 +1,6 @@
 extern crate clap;
-extern crate md5;
 extern crate rayon;
+extern crate crypto;
 extern crate rusqlite;
 extern crate serde;
 extern crate time;

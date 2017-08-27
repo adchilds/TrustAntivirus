@@ -1,4 +1,5 @@
-use md5::{self, Digest};
+use crypto::digest::Digest;
+use crypto::md5::Md5;
 use std::cmp;
 use std::fmt::{Display, Formatter, Result};
 use std::fs::{File, Metadata};
@@ -9,10 +10,10 @@ use std::path::Path;
 /// Simple representation of a File on the user's system.
 ///
 pub struct SystemFile {
-    name: String,
-    path: String,
-    size: String,
-    md5: Digest
+    pub name: String,
+    pub path: String,
+    pub size: String,
+    pub md5: String
 }
 
 impl SystemFile {
@@ -30,11 +31,14 @@ impl SystemFile {
             file.read_to_end(&mut buffer).unwrap();
         }
 
+        let mut md5 = Md5::new();
+        md5.input(buffer.as_ref());
+
         SystemFile {
             name: String::from(Path::new(&path).file_name().unwrap().to_str().unwrap()),
             path: path,
             size: SystemFile::human_readable_size(metadata.len() as f64),
-            md5: md5::compute(buffer)
+            md5: String::from(md5.result_str())
         }
     }
 
@@ -59,6 +63,6 @@ impl SystemFile {
 
 impl Display for SystemFile {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "({}, {}, {}, {})", format!("{:x}", self.md5), self.name, self.size, self.path)
+        write!(f, "({}, {}, {}, {})", self.md5, self.name, self.size, self.path)
     }
 }

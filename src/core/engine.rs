@@ -1,6 +1,8 @@
 use core::scanner::ScanResult;
+use db::{Database, SQL_MD5_SELECT};
 use io::SystemFile;
 use rayon::prelude::*;
+use rusqlite::Connection;
 use std::fs::{File, Metadata};
 use std::path::Path;
 use std::process;
@@ -49,9 +51,11 @@ impl<'a> Engine<'a> {
             process::exit(1);
         }
 
+        let db: Database = Database::default();
+
         let result: ScanResult = match self.path.is_dir() {
             true => Engine::scan_dir(self.path).unwrap(),
-            false => Engine::scan_file(self.path).unwrap()
+            false => Engine::scan_file(self.path, &db.conn).unwrap()
         };
 
         println!("Total size: {}", SystemFile::human_readable_size(result.total_scan_size));
@@ -70,6 +74,8 @@ impl<'a> Engine<'a> {
 
         // Scan in parallel using Rayon
         let total_size: f64 = dir_iter_par.map(|result| {
+            let db: Database = Database::default();
+            let conn: Connection = db.conn;
             let dir_entry: DirEntry = result.unwrap();
             let path: &Path = dir_entry.path();
 
@@ -85,6 +91,11 @@ impl<'a> Engine<'a> {
                     let metadata: Metadata = file.metadata().unwrap();
                     let file_path: String = String::from(path.to_str().unwrap());
                     let sys_file: SystemFile = SystemFile::from(file_path);
+
+                    let mut stmt = conn.prepare(SQL_MD5_SELECT).unwrap();
+                    if stmt.exists(&[&sys_file.md5]).unwrap() {
+                        println!("Found malware: {}", sys_file.md5);
+                    }
 
                     println!("{}", sys_file);
 
@@ -103,7 +114,7 @@ impl<'a> Engine<'a> {
     ///
     ///
     ///
-    pub(self) fn scan_file(file_path: &Path) -> Option<ScanResult> {
+    pub(self) fn scan_file(file_path: &Path, conn: &Connection) -> Option<ScanResult> {
         println!("Scanning file: {}", file_path.to_str().unwrap());
 
         let file: File = File::open(file_path).unwrap();
@@ -112,6 +123,11 @@ impl<'a> Engine<'a> {
         let sys_file: SystemFile = SystemFile::from(file_path_as_str);
 
         println!("{}", sys_file);
+
+        let md5 = String::from(sys_file.md5);
+
+        let result = conn.execute(SQL_MD5_SELECT, &[&md5]).unwrap();
+        println!("Result: {}", result);
 
         // Determine which Scanner to use
 

@@ -1,3 +1,4 @@
+use db::Database;
 use std::env;
 use std::fs;
 use std::path::{MAIN_SEPARATOR, Path, PathBuf};
@@ -14,9 +15,9 @@ const PROGRAM_HOME: &'static str = ".trustantivirus";
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
 
-    parallel: bool,
-    hash_algorithm: HashAlgorithm,
-    program_version: &'static str
+    pub parallel: bool,
+    pub hash_algorithm: HashAlgorithm,
+    pub program_version: String
 
 }
 
@@ -31,7 +32,7 @@ impl Config {
         Config {
             parallel: true,
             hash_algorithm: HashAlgorithm::MD5,
-            program_version: "1.0.0"
+            program_version: String::from("1.0.0")
         }
     }
 
@@ -54,6 +55,9 @@ impl Config {
 
             println!("Created TrustAntivirus home directory [{}]", config_home_path.to_str().unwrap());
         }
+
+        // Initialize the database
+        Database::default().init();
 
         // TODO: Read or create config
         Config::new()
@@ -102,7 +106,7 @@ impl Config {
 /// configuration directory.
 ///
 #[derive(Debug, Serialize, Deserialize)]
-enum HashAlgorithm {
+pub enum HashAlgorithm {
 
     MD5,
     SHA256
