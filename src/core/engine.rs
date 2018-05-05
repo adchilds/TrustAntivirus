@@ -8,7 +8,7 @@ use std::path::Path;
 use std::process;
 use std::result::Result;
 use std::time::SystemTime;
-use walkdir::{DirEntry, Error, Iter, WalkDir};
+use walkdir::{DirEntry, Error, IntoIter, WalkDir};
 
 ///
 ///
@@ -65,10 +65,10 @@ impl<'a> Engine<'a> {
     ///
     ///
     ///
-    pub(self) fn scan_dir(dir: &Path) -> Option<ScanResult> {
+    pub fn scan_dir(dir: &Path) -> Option<ScanResult> {
         println!("Scanning dir: {}", dir.to_str().unwrap());
 
-        let dir_iter: Iter = WalkDir::new(dir).into_iter();
+        let dir_iter: IntoIter = WalkDir::new(dir).into_iter();
         let dir_entries: Vec<Result<DirEntry, Error>> = dir_iter.collect();
         let dir_iter_par = dir_entries.into_par_iter();
 
@@ -114,7 +114,7 @@ impl<'a> Engine<'a> {
     ///
     ///
     ///
-    pub(self) fn scan_file(file_path: &Path, conn: &Connection) -> Option<ScanResult> {
+    pub fn scan_file(file_path: &Path, conn: &Connection) -> Option<ScanResult> {
         println!("Scanning file: {}", file_path.to_str().unwrap());
 
         let file: File = File::open(file_path).unwrap();
@@ -124,7 +124,7 @@ impl<'a> Engine<'a> {
 
         println!("{}", sys_file);
 
-        let md5 = String::from(sys_file.md5);
+        let md5 = String::from(sys_file.md5.as_str());
 
         let result = conn.execute(SQL_MD5_SELECT, &[&md5]).unwrap();
         println!("Result: {}", result);

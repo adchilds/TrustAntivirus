@@ -1,7 +1,7 @@
 use core::config::Config;
 use std::path::{MAIN_SEPARATOR, PathBuf};
 use rusqlite::Connection;
-use time::{self, Timespec};
+use time::Timespec;
 
 const DB_NAME: &'static str = "db.tav";
 
